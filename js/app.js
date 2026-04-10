@@ -38,6 +38,65 @@
     let offer = null;
     let answer = null;
     let listening = false;
+    // URL-safe base64 encoding/decoding
+    function base64UrlEncode(str) {
+        return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+
+    function base64UrlDecode(base64) {
+        // Add padding if needed
+        base64 = base64.replace(/-/g, '+').replace(/_/g, '/');
+        while (base64.length % 4) {
+            base64 += '=';
+        }
+        return atob(base64);
+    }
+
+    // Get base URL for this page (handles GitHub Pages and local file)
+    function getBaseUrl() {
+        // If we're on HTTP/HTTPS, return the full URL without query/hash
+        if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+            return window.location.origin + window.location.pathname;
+        }
+        // For file:// or other protocols, return empty (will use raw JSON)
+        return '';
+    }
+    
+    // Check if we should generate a URL (vs raw JSON) for QR
+    function shouldGenerateUrl() {
+        return window.location.protocol === 'http:' || window.location.protocol === 'https:';
+    }
+
+    // Parse URL parameters
+    function getUrlParam(name) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(name);
+    }
+
+    // Check if we have an offer in URL on page load
+    function checkForUrlOffer() {
+        const offerParam = getUrlParam('offer');
+        if (offerParam) {
+            try {
+                const decoded = base64UrlDecode(offerParam);
+                const parsed = JSON.parse(decoded);
+                if (parsed.type === 'offer') {
+                    log('Found offer in URL parameter');
+                    offer = parsed;
+                    // Auto-switch to guest mode
+                    role = 'guest';
+                    showSection(guestSection);
+                    guestStatus.textContent = 'Offer loaded from URL. Generating answer...';
+                    btnPlayAnswer.disabled = false;
+                    generateAnswer();
+                    return true;
+                }
+            } catch (e) {
+                log('Failed to parse offer from URL: ' + e);
+            }
+        }
+        return false;
+    }
 
     // Logging utility
     function log(msg) {
@@ -153,9 +212,23 @@
 
     function onQRScanSuccess(decodedText) {
         log('QR scanned: ' + decodedText.substring(0, 50) + '...');
-        // Assume decodedText is the SDP offer
+        let offerJson = decodedText;
+        
+        // Check if it's a URL with offer parameter
         try {
-            const parsed = JSON.parse(decodedText);
+            const url = new URL(decodedText);
+            if (url.searchParams.has('offer')) {
+                const encoded = url.searchParams.get('offer');
+                offerJson = base64UrlDecode(encoded);
+                log('Extracted offer from URL');
+            }
+        } catch (e) {
+            // Not a URL, treat as raw JSON
+        }
+        
+        // Parse the offer JSON
+        try {
+            const parsed = JSON.parse(offerJson);
             if (parsed.type === 'offer') {
                 offer = parsed;
                 log('Offer received via QR');
@@ -255,9 +328,22 @@
             offer = await peerConnection.createOffer();
             await peerConnection.setLocalDescription(offer);
             log('Offer created');
-            // Convert offer to JSON string for QR
+            // Convert offer to JSON string
             const offerString = JSON.stringify(offer);
-            await generateQR(offerString);
+            
+            // Create QR content: URL with embedded offer if on HTTP/HTTPS, else raw JSON
+            let qrContent;
+            if (shouldGenerateUrl()) {
+                const baseUrl = getBaseUrl();
+                const encodedOffer = base64UrlEncode(offerString);
+                qrContent = baseUrl + "?offer=" + encodedOffer;
+                log('Generated URL with embedded offer: ' + qrContent.substring(0, 80) + '...');
+            } else {
+                qrContent = offerString;
+                log('Generated raw JSON offer (local file mode)');
+            }
+            
+            await generateQR(qrContent);
             hostStatus.textContent = 'QR code generated. Show it to guest.';
             btnListenAudio.disabled = false;
         } catch (e) {
@@ -423,4 +509,6 @@
 
     // Initialize
     log('Audio QR Clipboard Share initialized');
+    // Check for offer in URL on page load
+    checkForUrlOffer();
 })();

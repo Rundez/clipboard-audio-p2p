@@ -9,8 +9,12 @@ Share clipboard text between devices using QR code and audio handshake (WebRTC d
 
 ## How it works
 
-1. **Host** generates a WebRTC offer, displayed as a QR code.
-2. **Guest** scans the QR code with camera, receives the offer.
+1. **Host** generates a WebRTC offer. The offer is embedded in a URL (base64-encoded) and displayed as a QR code.
+   - When accessed via GitHub Pages, the QR contains a clickable URL like: `https://rundez.github.io/clipboard-audio-p2p/?offer=...`
+   - When testing locally (`file://`), the QR contains raw JSON.
+2. **Guest** scans the QR code with camera:
+   - If it's a URL: opens the page automatically and extracts the offer
+   - If it's raw JSON: processes the offer directly (manual testing)
 3. Guest creates a WebRTC answer, encodes it as audio (using quiet.js ultrasonic transmission).
 4. Host listens with microphone, decodes the audio answer, sets remote description.
 5. WebRTC connection established; data channel opens.
@@ -31,8 +35,10 @@ Share clipboard text between devices using QR code and audio handshake (WebRTC d
 
 No build step required. Just open `index.html` in a modern browser (Chrome/Edge) with microphone and camera permissions.
 
+**Live Demo:** The project is hosted on GitHub Pages at: https://rundez.github.io/clipboard-audio-p2p/
+
 1. Clone the repository or download the files.
-2. Open `index.html` in a browser.
+2. Open `index.html` in a browser (or use the GitHub Pages URL above).
 3. Allow camera access for QR scanning and microphone access for audio handshake.
 
 ## Usage
