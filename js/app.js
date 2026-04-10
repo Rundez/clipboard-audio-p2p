@@ -509,6 +509,7 @@
 
     // Initialize
     log('Audio QR Clipboard Share initialized');
+    log('Protocol: ' + window.location.protocol + ', Base URL: ' + getBaseUrl());
     // Check for offer in URL on page load
     checkForUrlOffer();
 })();
