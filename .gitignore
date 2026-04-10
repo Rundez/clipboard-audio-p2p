@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+
+# Optional npm cache directory
+.npm
+
+# Logs
+*.log
+
+# Environment variables
+.env
+.env.local
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Build outputs
+dist/
+build/
+
+# Temporary files
+tmp/
+temp/
+
+# Audio test files
+*.mp3
+*.wav

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio QR Clipboard Share</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Libraries -->
+    <script src="lib/qrcodejs.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <!-- quiet.js for audio data transmission -->
+    <script src="lib/quiet.js"></script>
+    <!-- WebRTC adapter for cross-browser compatibility -->
+    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Audio QR Clipboard Share</h1>
+        <p>Share clipboard text between devices using QR code and audio handshake.</p>
+
+        <div class="section">
+            <h2>1. Choose Role</h2>
+            <button id="btn-host">Be Host (Generate QR)</button>
+            <button id="btn-guest">Be Guest (Scan QR)</button>
+        </div>
+
+        <div id="host-section" class="hidden">
+            <h3>Host - Share your clipboard</h3>
+            <p>Generate a QR code for the guest to scan.</p>
+            <button id="btn-generate-offer">Generate Offer & QR</button>
+            <div id="qr-container"></div>
+            <p>After guest scans, listen for audio answer:</p>
+            <button id="btn-listen-audio">Listen for Audio Answer</button>
+            <div id="host-status"></div>
+        </div>
+
+        <div id="guest-section" class="hidden">
+            <h3>Guest - Connect to host</h3>
+            <p>Scan the host's QR code with your camera.</p>
+            <div id="qr-reader" style="width: 300px;"></div>
+            <p>After scanning, you will generate an audio answer.</p>
+            <button id="btn-play-answer" disabled>Play Audio Answer</button>
+            <div id="guest-status"></div>
+        </div>
+
+        <div id="connection-section" class="hidden">
+            <h2>2. Connection Status</h2>
+            <p id="connection-status">Disconnected</p>
+            <p id="data-channel-status">Data channel: closed</p>
+        </div>
+
+        <div id="clipboard-section" class="hidden">
+            <h2>3. Share Clipboard Text</h2>
+            <textarea id="text-input" placeholder="Type or paste text here..."></textarea>
+            <button id="btn-send">Send to Peer</button>
+            <button id="btn-paste">Paste from Clipboard</button>
+            <h3>Received Text:</h3>
+            <textarea id="text-output" readonly></textarea>
+            <button id="btn-copy">Copy to Clipboard</button>
+        </div>
+
+        <div class="section">
+            <h2>Debug Info</h2>
+            <pre id="log"></pre>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
