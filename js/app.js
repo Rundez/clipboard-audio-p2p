@@ -120,17 +120,37 @@
     async function initQuiet() {
         if (quiet) return quiet;
         log('Loading quiet.js...');
-        return new Promise(resolve => {
-            if (window.quiet) {
-                quiet = window.quiet;
-                quiet.addReadyCallback(() => {
-                    log('quiet.js ready');
-                    resolve(quiet);
-                });
-            } else {
-                log('quiet not found');
-                resolve(null);
+        // Wait for window.quiet to be defined (script loaded)
+        return new Promise((resolve) => {
+            const maxAttempts = 50; // 5 seconds at 100ms intervals
+            let attempts = 0;
+            function check() {
+                if (window.quiet) {
+                    quiet = window.quiet;
+                    // Reinitialize with local paths and error handler
+                    quiet.init({
+                        profilesPrefix: 'lib/',
+                        memoryInitializerPrefix: 'lib/',
+                        libfecPrefix: 'lib/',
+                        onError: function(reason) {
+                            log('quiet initialization error: ' + reason);
+                        }
+                    });
+                    quiet.addReadyCallback(() => {
+                        log('quiet.js ready');
+                        resolve(quiet);
+                    });
+                } else {
+                    attempts++;
+                    if (attempts >= maxAttempts) {
+                        log('quiet not found after timeout - make sure quiet.js loaded and page served via HTTP (file:// may cause CORS errors)');
+                        resolve(null);
+                    } else {
+                        setTimeout(check, 100);
+                    }
+                }
             }
+            check();
         });
     }
 
