@@ -49,6 +49,15 @@ No build step required. Just open `index.html` in a modern browser (Chrome/Edge)
 3. After scanning, click "Play Audio Answer". Hold the device close to the host's microphone.
 4. Wait for connection. Received text will appear in the "Received Text" box. You can copy it to clipboard.
 
+## Browser Support
+
+- **Chrome/Edge**: Full support (WebRTC, getUserMedia, Clipboard API)
+- **Firefox**: Works but may need HTTPS for clipboard API
+- **Safari**: Limited WebRTC support; may not work
+- **Mobile browsers**: Camera QR scanning works, but audio handshake may be filtered by device audio processing
+
+**Note**: The ultrasonic profile (`ultrasonic-experimental`) may not work on all devices. If audio handshake fails, try using the audible profile (modify `js/app.js` line ~200 to use `'audible'` instead of `'ultrasonic-experimental'`).
+
 ## Limitations
 
 - Audio handshake uses ultrasonic frequencies (profile `ultrasonic-experimental`) which may not work on all devices.
