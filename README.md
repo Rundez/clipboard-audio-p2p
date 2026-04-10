@@ -1,5 +1,10 @@
 # Audio QR Clipboard Share
 
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-blue)](https://github.com/Rundez/clipboard-audio-p2p)
+
+**GitHub Repository:** https://github.com/Rundez/clipboard-audio-p2p
+
+
 Share clipboard text between devices using QR code and audio handshake (WebRTC data channel).
 
 ## How it works
